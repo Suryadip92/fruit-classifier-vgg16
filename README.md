@@ -1,10 +1,5 @@
 # Fruit Classifier — VGG16 Transfer Learning
 
-[![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![PyTorch](https://img.shields.io/badge/PyTorch-VGG16-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Model](https://img.shields.io/badge/Model-Git%20LFS-F64935?logo=git&logoColor=white)](https://git-lfs.com/)
-
 A web-based fruit image classification system powered by a fine-tuned VGG16 network. The project combines a PyTorch model, a FastAPI backend, and a responsive HTML/CSS/JavaScript frontend served from a single port.
 
 Upload an image, drag and drop a file, or take a photo with your camera. The application returns the predicted fruit class along with the softmax probabilities for all 16 classes.
