@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Upload a fruit photo and let a fine-tuned PyTorch VGG16 model identify it instantly." />
+  <title>Fruit Classifier — Discover Your Fruit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='58' r='34' fill='%2368A357'/%3E%3Cpath d='M50 24c6-14 20-18 20-18s-2 14-14 20' fill='%23254B32'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <a class="skip-link" href="#classifier" data-scroll="classifier">Skip to classifier</a>
+
+  <!-- ===================== NAVIGATION ===================== -->
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="brand" href="./" data-scroll="home" aria-label="Fruit Classifier home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" role="img" focusable="false">
+            <path d="M24 13c2.6-6.6 9-9.4 12.6-9.9-.4 4.6-2.6 10.6-9.6 12.5" fill="currentColor" opacity=".85"/>
+            <circle cx="24" cy="29" r="15" fill="currentColor"/>
+            <circle cx="19" cy="24" r="4" fill="#EAF4E4" opacity=".45"/>
+          </svg>
+        </span>
+        <span class="brand-text">Fruit<span>Classifier</span></span>
+      </a>
+
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="./" data-scroll="home">Home</a></li>
+          <li><a href="./" data-scroll="about">About</a></li>
+        </ul>
+        <span class="api-pill" id="apiStatus" data-state="checking" title="Backend status">
+          <span class="dot" aria-hidden="true"></span>
+          <span class="api-label">Checking API…</span>
+        </span>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ===================== HERO ===================== -->
+    <section class="hero" id="home">
+      <div class="hero-glow hero-glow--green" aria-hidden="true"></div>
+      <div class="hero-glow hero-glow--orange" aria-hidden="true"></div>
+
+      <div class="container hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow">
+            <span class="eyebrow-dot" aria-hidden="true"></span>
+            VGG16 · Transfer Learning
+          </p>
+          <h1>Discover Your <span class="accent">Fruit</span>.</h1>
+          <p class="hero-subtitle">
+            Upload an image and let AI identify the fruit — instantly, right in your browser.
+          </p>
+
+          <ul class="hero-chips" aria-label="Model highlights">
+            <li>16 classes</li>
+            <li>224 × 224 input</li>
+            <li>Real PyTorch inference</li>
+          </ul>
+        </div>
+
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-plate">
+            <span class="fruit fruit--apple">
+              <svg viewBox="0 0 64 64"><circle cx="32" cy="36" r="21" fill="#E85D75"/><path d="M32 17c1-6 5-9 9-10-.5 5-3 9-7 11" fill="#68A357"/><ellipse cx="24" cy="28" rx="5" ry="7" fill="#fff" opacity=".28" transform="rotate(-20 24 28)"/></svg>
+            </span>
+            <span class="fruit fruit--orange">
+              <svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="21" fill="#FFA94D"/><path d="M32 13c4-4 9-4 12-2-2 4-6 6-10 5" fill="#68A357"/><circle cx="32" cy="34" r="21" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/></svg>
+            </span>
+            <span class="fruit fruit--lemon">
+              <svg viewBox="0 0 64 64"><ellipse cx="32" cy="34" rx="22" ry="16" fill="#FFE08A" transform="rotate(-18 32 34)"/><path d="M46 21c4-2 7-1 9 1-2 3-6 4-9 3" fill="#68A357"/></svg>
+            </span>
+            <span class="fruit fruit--grape">
+              <svg viewBox="0 0 64 64"><g fill="#68A357"><circle cx="32" cy="22" r="6"/><circle cx="24" cy="31" r="6"/><circle cx="40" cy="31" r="6"/><circle cx="28" cy="41" r="6"/><circle cx="38" cy="41" r="6"/><circle cx="32" cy="51" r="6"/></g><path d="M32 16c1-5 5-7 8-7-1 4-3 6-6 7" fill="#254B32"/></svg>
+            </span>
+          </div>
+          <div class="scan-ring"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CLASSIFIER ===================== -->
+    <section class="classifier container" id="classifier">
+      <div class="panel upload-panel">
+        <div class="panel-head">
+          <h2>Classify a fruit</h2>
+          <p>Drop a photo below, browse your files, or open your camera.</p>
+        </div>
+
+        <!-- Dropzone -->
+        <div class="dropzone" id="dropzone" data-state="empty">
+          <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp,image/bmp,image/gif" hidden />
+
+          <div class="dropzone-empty" id="dropzoneEmpty">
+            <span class="dropzone-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <path d="M7 9l5-5 5 5" />
+                <path d="M12 4v12" />
+              </svg>
+            </span>
+            <p class="dropzone-title">Drag &amp; drop your image here</p>
+            <p class="dropzone-hint">JPG, PNG, WEBP, BMP or GIF · up to 10 MB</p>
+            <div class="dropzone-actions">
+              <button type="button" class="btn btn-ghost" id="browseBtn">Browse image</button>
+              <button type="button" class="btn btn-ghost btn-camera" id="openCameraBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2l1.1-1.7A2 2 0 0 1 9.5 3.5h5a2 2 0 0 1 1.7.8L17.3 6h1.2A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z" />
+                  <circle cx="12" cy="12.5" r="3.5" />
+                </svg>
+                <span class="camera-label">Open Camera</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="dropzone-preview" id="dropzonePreview" hidden>
+            <img id="previewImage" alt="Selected image preview" />
+            <div class="preview-actions">
+              <button type="button" class="btn btn-retake" id="retakeBtn" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 12a9 9 0 1 0 3-6.7" />
+                  <path d="M3 4v5h5" />
+                </svg>
+                Retake photo
+              </button>
+              <button type="button" class="btn btn-remove" id="removeBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+                Remove image
+              </button>
+            </div>
+          </div>
+
+          <div class="camera" id="cameraPanel" hidden>
+            <video id="cameraVideo" autoplay playsinline muted aria-label="Live camera preview"></video>
+            <div class="camera-actions">
+              <button type="button" class="btn btn-primary btn-capture" id="captureBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.2l1.1-1.7A2 2 0 0 1 9.5 3.5h5a2 2 0 0 1 1.7.8L17.3 6h1.2A2.5 2.5 0 0 1 21 8.5v8A2.5 2.5 0 0 1 18.5 19h-13A2.5 2.5 0 0 1 3 16.5z" />
+                  <circle cx="12" cy="12.5" r="3.5" />
+                </svg>
+                Capture photo
+              </button>
+              <button type="button" class="btn btn-remove" id="closeCameraBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                  <path d="M18 6L6 18M6 6l12 12" />
+                </svg>
+                Close camera
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p class="file-meta" id="fileMeta" hidden></p>
+
+        <button type="button" class="btn btn-primary btn-predict" id="predictBtn" disabled>
+          <span class="btn-label">Predict fruit</span>
+          <span class="spinner" aria-hidden="true"></span>
+        </button>
+
+        <p class="alert" id="alert" role="alert" hidden></p>
+      </div>
+
+      <!-- ===================== RESULT ===================== -->
+      <div class="panel result-panel" id="resultPanel">
+        <div class="result-empty" id="resultPlaceholder">
+          <span class="result-empty-art" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-4.2-4.2" />
+              <path d="M8.5 11h5M11 8.5v5" opacity=".6" />
+            </svg>
+          </span>
+          <h3>Your result will appear here</h3>
+          <p>Upload a fruit photo and press <strong>Predict fruit</strong> to see the model's guess.</p>
+        </div>
+
+        <div id="resultContent" hidden>
+        <div class="result-header">
+          <span class="result-badge" id="resultBadge">Prediction</span>
+          <button type="button" class="icon-btn" id="resetResultBtn" aria-label="Clear result" title="Clear result">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="result-main">
+          <img class="result-thumb" id="resultImage" alt="Classified image" />
+          <div class="result-summary" aria-live="polite" aria-atomic="true">
+            <p class="result-kicker" id="resultKicker">Predicted fruit</p>
+            <h3 class="result-name" id="resultName">—</h3>
+            <p class="result-note" id="resultNote"></p>
+
+            <div class="confidence">
+              <div class="confidence-row">
+                <span>Confidence</span>
+                <strong id="confidenceValue">0.0%</strong>
+              </div>
+              <div class="progress" role="progressbar" aria-label="Prediction confidence"
+                   aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="confidenceBar">
+                <span class="progress-fill" id="confidenceFill"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="probabilities">
+          <div class="probabilities-head">
+            <h4>Class probabilities</h4>
+            <span class="prob-count" id="probCount">16 classes</span>
+          </div>
+          <ul class="prob-list" id="probList"></ul>
+        </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ABOUT ===================== -->
+    <section class="about container" id="about">
+      <div class="about-intro">
+        <p class="eyebrow eyebrow--plain">About the model</p>
+        <h2>Transfer learning,<br />trained on real fruit.</h2>
+        <p>
+          This site runs a VGG16 convolutional network fine-tuned with PyTorch on 16 fruit
+          categories — including a dedicated <em>no fruit</em> class. Images are normalized with
+          ImageNet statistics and passed through the network exactly as during validation.
+        </p>
+      </div>
+
+      <div class="about-cards">
+        <article class="about-card">
+          <span class="about-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </span>
+          <h3>224 × 224 RGB</h3>
+          <p>Images are EXIF-corrected, resized and center-cropped before inference.</p>
+        </article>
+
+        <article class="about-card">
+          <span class="about-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v18M3 12h18" opacity=".35" />
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+          </span>
+          <h3>FastAPI inference</h3>
+          <p>The trained checkpoint loads once at startup and serves predictions over HTTP.</p>
+        </article>
+
+        <article class="about-card">
+          <span class="about-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+              <path d="M14 3v6h6" />
+              <path d="M8 14l2 2 4-4" />
+            </svg>
+          </span>
+          <h3>16 fruit classes</h3>
+          <p>Apple, banana, cherry, chickoo, coconut, dates, grapes, guava, kiwi, mango and more.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <span class="brand-mark brand-mark--sm" aria-hidden="true">
+          <svg viewBox="0 0 48 48" focusable="false">
+            <path d="M24 13c2.6-6.6 9-9.4 12.6-9.9-.4 4.6-2.6 10.6-9.6 12.5" fill="currentColor" opacity=".85"/>
+            <circle cx="24" cy="29" r="15" fill="currentColor"/>
+            <circle cx="19" cy="24" r="4" fill="#EAF4E4" opacity=".45"/>
+          </svg>
+        </span>
+        <div>
+          <p class="footer-title">Fruit Classifier</p>
+          <p class="footer-sub">Powered by PyTorch and VGG16.</p>
+        </div>
+      </div>
+      <p class="footer-meta">© <span id="year">2026</span> · Built for local inference</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
