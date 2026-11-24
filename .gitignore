@@ -8,3 +8,6 @@ venv/
 Thumbs.db
 *.log
 .ipynb_checkpoints/
+
+# Local dataset only — never commit the images.
+dataset/
