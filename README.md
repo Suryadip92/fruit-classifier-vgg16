@@ -13,17 +13,18 @@ A fruit image classifier built with PyTorch (fine-tuned VGG16, 16 classes) and s
 ## Project structure
 
 ```
-backend/    FastAPI app, model wrapper, requirements
-frontend/   index.html, style.css, app.js
-artifacts/  best_fruit_vgg16.pth (trained weights, stored via Git LFS)
-dataset/    image/ with 16 class folders
+backend/          FastAPI app and model wrapper
+frontend/         index.html, style.css, app.js
+artifacts/        best_fruit_vgg16.pth (trained weights, stored via Git LFS)
+dataset/          image/ with 16 class folders
 notebook.ipynb
+requirements.txt  Python dependencies
 ```
 
 ## Setup
 
 ```bash
-pip install -r backend/requirements.txt
+pip install -r requirements.txt
 ```
 
 Model weights are tracked with Git LFS. If you cloned the repo without Git LFS:
